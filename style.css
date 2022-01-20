@@ -1,0 +1,24 @@
+.container{
+	padding: 10px;
+	box-sizing: border-box;
+}
+.card{
+	margin-bottom: 20px;
+}
+.card .card-text{
+	color: #666;
+}
+.card .card-note{
+	color: #2c2c2c;
+	font-weight: bold;
+}
+.card .card-info{
+	margin-bottom: 0;
+}
+.card .card-body{
+	padding: 1rem;
+}
+.btn-default{
+	margin: 0 10px;
+	box-sizing: border-box;
+}

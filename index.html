@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta charset="UTF-8">
+		<title>nasa images</title>
+		<link href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/style.css" />
+		<script src="https://cdn.staticfile.org/react/16.4.0/umd/react.development.js"></script>
+		<script src="https://cdn.staticfile.org/react-dom/16.4.0/umd/react-dom.development.js"></script>
+		<script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+		<script src="https://cdn.staticfile.org/jquery/2.1.4/jquery.min.js"></script>
+	</head>
+	<body>
+		<div class="container" id="box">
+			
+		</div>
+		<script type="text/babel">
+			//image async
+			class ImageList extends React.Component{
+				constructor(props) {
+			    	super(props);
+			    	this.state = {list: []};
+			    }
+				
+				handleLike(title) {
+					let list = this.state.list;
+					for(var i = 0;i<list.length;i++){
+						if(list[i].title == title){
+							list[i].like = 1;
+						}
+					}
+					var likeList = [];
+			    	var like = localStorage.getItem('like');
+			    	if(like){
+			    		likeList = JSON.parse(like);
+			    	}
+					
+					likeList.push(title);
+					console.log(likeList);
+					localStorage.setItem('like',JSON.stringify(likeList));
+				    this.setState({
+				    	list:list
+				    });
+				}
+				
+				handleUnLike(title) {
+				    let list = this.state.list;
+					for(var i = 0;i<list.length;i++){
+						if(list[i].title == title){
+							list[i].like = 0;
+						}
+					}
+					
+					var likeList = [];
+			    	var like = localStorage.getItem('like');
+			    	if(like){
+			    		likeList = JSON.parse(like);
+			    	}
+			    	
+				    for(var i = 0;i<likeList.length;i++){
+				    	if(likeList[i] == title){
+				    		likeList.splice(i,1);
+				    	}
+				    }
+				    console.log(likeList);
+					localStorage.setItem('like',JSON.stringify(likeList));
+					
+				    this.setState({
+				    	list:list
+				    });
+				}
+				
+				componentDidMount() {
+					//api key change you self
+					const _key = this.props.api_key;
+				    this.serverRequest = $.get('https://api.nasa.gov/planetary/apod?api_key='+_key+'&count=10', function (result) {
+				    	//check like 
+				    	
+				    	var likeList = [];
+				    	var like = localStorage.getItem('like');
+				    	if(like){
+				    		likeList = JSON.parse(like);
+				    	}
+				    	
+				    	console.log(likeList);
+				    	for(var i = 0;i<result.length;i++){
+				    		result[i].like = 0;
+				    		for(var j = 0;j<likeList.length;j++){
+				    			if(likeList[j].title == result[i].title){
+					    			//like
+					    			result[i].like = 1;
+					    		}
+				    		}
+				    	}
+				    	
+				      	this.setState({
+				        	list: result
+				        });
+				    }.bind(this));
+				}
+				
+				componentWillUnmount() {
+				    this.serverRequest.abort();
+				}
+				 
+				render() {
+					const listItems = this.state.list.map((item) =>
+					    <div className="col-md-12 col-sm-12" key={item.date}>
+							<div className="card">
+								<img className="card-img-top" src={item.url} alt={item.title} />
+								<div className="card-body">
+									<h4 className="card-title">{item.title}</h4>
+									<p className="card-text card-note">{item.explanation}</p>
+									<p className="card-text">{item.date}</p>
+									{item.like == 0 ? <button onClick={this.handleLike.bind(this,item.title)} className="btn btn-success">Like</button> : <button className="btn btn-warning" onClick={this.handleUnLike.bind(this,item.title)}>UnLike</button>}
+								</div>
+							</div>
+						</div>
+					);
+				    return (
+				      <div className='row'>
+				        {listItems}
+				      </div>
+				    );
+				}
+			}
+			
+			//load dom
+			ReactDOM.render(
+			  	<ImageList api_key="baaHCWNA4qzZMOeuSrdwg6aGgnJLFhvgOwKzmhse" />,
+			  	document.getElementById('box')
+			);
+		</script>
+	</body>
+</html>
